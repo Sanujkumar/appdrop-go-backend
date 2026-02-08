@@ -1,5 +1,6 @@
 package main
 
+
 import (
 	"log"
 	"os"
@@ -10,6 +11,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
+	"appdrop/middleware"
+
 )
 
 func main() {
@@ -20,6 +23,8 @@ func main() {
 	config.DB.AutoMigrate(&models.Page{}, &models.Widget{})
 
 	r := gin.Default()
+	r.Use(middleware.RequestLogger())
+	
 	routes.SetupRoutes(r)
 
 	port := os.Getenv("PORT")

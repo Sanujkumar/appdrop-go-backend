@@ -9,7 +9,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	"gorm.io/gorm"
+	"strconv"
+
 )
 
 
@@ -54,27 +55,82 @@ func CreatePage(c *gin.Context) {
 	c.JSON(http.StatusCreated, page)
 }
 
-// ---------- GET /pages ----------
-func ListPages(c *gin.Context) {
+// // ---------- GET /pages ----------
+// func ListPages(c *gin.Context) {
+// 	var pages []models.Page
+// 	config.DB.Find(&pages)
+// 	c.JSON(http.StatusOK, pages)
+// }
+
+func GetPages(c *gin.Context) {
 	var pages []models.Page
-	config.DB.Find(&pages)
-	c.JSON(http.StatusOK, pages)
+
+	// pagination params
+	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
+	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "10"))
+
+	if page < 1 {
+		page = 1
+	}
+	if limit < 1 {
+		limit = 10
+	}
+
+	offset := (page - 1) * limit
+
+	var total int64
+	config.DB.Model(&models.Page{}).Count(&total)
+
+	config.DB.
+		Limit(limit).
+		Offset(offset).
+		Find(&pages)
+
+	c.JSON(http.StatusOK, gin.H{
+		"data": pages,
+		"page": page,
+		"limit": limit,
+		"total": total,
+	})
 }
 
+
 // ---------- GET /pages/:id ----------
-func GetPage(c *gin.Context) {
+// func GetPage(c *gin.Context) {
+// 	id := c.Param("id")
+// 	var page models.Page
+
+// 	if err := config.DB.Preload("Widgets", func(db *gorm.DB) *gorm.DB {
+// 		return db.Order("position asc")
+// 	}).First(&page, "id = ?", id).Error; err != nil {
+// 		utils.ErrorResponse(c, http.StatusNotFound, "NOT_FOUND", "Page not found")
+// 		return
+// 	}
+
+// 	c.JSON(http.StatusOK, page)
+// }
+
+
+func GetPageByID(c *gin.Context) {
 	id := c.Param("id")
 	var page models.Page
 
-	if err := config.DB.Preload("Widgets", func(db *gorm.DB) *gorm.DB {
-		return db.Order("position asc")
-	}).First(&page, "id = ?", id).Error; err != nil {
+	widgetType := c.Query("type")
+
+	query := config.DB.Preload("Widgets")
+
+	if widgetType != "" {
+		query = query.Preload("Widgets", "type = ?", widgetType)
+	}
+
+	if err := query.First(&page, "id = ?", id).Error; err != nil {
 		utils.ErrorResponse(c, http.StatusNotFound, "NOT_FOUND", "Page not found")
 		return
 	}
 
 	c.JSON(http.StatusOK, page)
 }
+
 
 // ---------- PUT /pages/:id ----------
 func UpdatePage(c *gin.Context) {

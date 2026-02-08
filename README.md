@@ -34,6 +34,8 @@ appdrop-backend/
 ├── main.go
 ├── go.mod
 ├── .env
+├── middleware/
+│   └── logger.go
 │
 ├── config/
 │ └── database.go
@@ -249,6 +251,12 @@ curl -X POST http://localhost:8008/pages/<PAGE_ID>/widgets
 - Widget config must be valid JSON
 
 ---
+
+Bonus Features:
+- Pagination for GET /pages
+- Widget filtering by type
+- Request logging middleware
+
 
 ## 👨‍💻 Author
 
