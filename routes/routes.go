@@ -10,6 +10,12 @@ func SetupRoutes(r *gin.Engine) {
 	r.GET("/health", func(c *gin.Context) {
 		c.JSON(200, gin.H{"status": "ok"})
 	})
+	
+
+	// Brand APIs
+    r.POST("/brands", handlers.CreateBrand)
+    r.GET("/brands", handlers.GetBrands)
+    r.DELETE("/brands/:id", handlers.DeleteBrand)
 
 	// Pages
 	r.GET("/pages", handlers.GetPages)

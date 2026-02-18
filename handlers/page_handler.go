@@ -16,10 +16,13 @@ import (
 
 // ---------- POST /pages ----------
 type CreatePageInput struct {
+	BrandID string `json:"brand_id"`
 	Name   string `json:"name"`
 	Route  string `json:"route"`
 	IsHome bool   `json:"is_home"`
 }
+
+
 
 func CreatePage(c *gin.Context) {
 	var input CreatePageInput
@@ -42,10 +45,12 @@ func CreatePage(c *gin.Context) {
 
 	page := models.Page{
 		ID:     uuid.New(),
+		BrandID: uuid.MustParse(input.BrandID),
 		Name:   input.Name,
 		Route:  input.Route,
 		IsHome: input.IsHome,
 	}
+
 
 	if err := config.DB.Create(&page).Error; err != nil {
 		utils.ErrorResponse(c, http.StatusInternalServerError, "DB_ERROR", "Failed to create page")
@@ -95,20 +100,7 @@ func GetPages(c *gin.Context) {
 }
 
 
-// ---------- GET /pages/:id ----------
-// func GetPage(c *gin.Context) {
-// 	id := c.Param("id")
-// 	var page models.Page
 
-// 	if err := config.DB.Preload("Widgets", func(db *gorm.DB) *gorm.DB {
-// 		return db.Order("position asc")
-// 	}).First(&page, "id = ?", id).Error; err != nil {
-// 		utils.ErrorResponse(c, http.StatusNotFound, "NOT_FOUND", "Page not found")
-// 		return
-// 	}
-
-// 	c.JSON(http.StatusOK, page)
-// }
 
 
 func GetPageByID(c *gin.Context) {

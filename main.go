@@ -20,7 +20,7 @@ func main() {
 
 	config.ConnectDB()
 
-	config.DB.AutoMigrate(&models.Page{}, &models.Widget{})
+	config.DB.AutoMigrate(&models.Brand{},&models.Page{}, &models.Widget{})
 
 	r := gin.Default()
 	r.Use(middleware.RequestLogger())
